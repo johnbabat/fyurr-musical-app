@@ -1,0 +1,138 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Venue Search{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col-sm-6">
+		<h1 class="monospace">
+			{{ venue.name }}
+		</h1>
+		<p id="sub" class="subtitle">
+			ID: {{ venue.id }}
+		</p>
+		<div class="genres">
+			{% for genre in venue.genres %}
+			<span class="genre">{{ genre }}</span>
+			{% endfor %}
+		</div>
+		<p>
+			<i class="fas fa-globe-americas"></i> {{ venue.city }}, {{ venue.state }}
+		</p>
+		<p>
+			<i class="fas fa-map-marker"></i> {% if venue.address %}{{ venue.address }}{% else %}No Address{% endif %}
+		</p>
+		<p>
+			<i class="fas fa-phone-alt"></i> {% if venue.phone %}{{ venue.phone }}{% else %}No Phone{% endif %}
+		</p>
+		<p>
+			<i class="fas fa-link"></i> {% if venue.website %}<a href="{{ venue.website }}" target="_blank">{{ venue.website }}</a>{% else %}No Website{% endif %}
+		</p>
+		<p>
+			<i class="fab fa-facebook-f"></i> {% if venue.facebook_link %}<a href="{{ venue.facebook_link }}" target="_blank">{{ venue.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
+		</p>
+		{% if venue.seeking_talent %}
+		<div class="seeking">
+			<p class="lead">Currently seeking talent</p>
+			<div class="description">
+				<i class="fas fa-quote-left"></i> {{ venue.seeking_description }} <i class="fas fa-quote-right"></i>
+			</div>
+		</div>
+		{% else %}	
+		<p class="not-seeking">
+			<i class="fas fa-moon"></i> Not currently seeking talent
+		</p>
+		{% endif %}
+		<p>
+			<a href="/venues/{{ venue.id }}/edit"><button type="button" class="btn btn-dark edit-property">Change venue details</button></a>
+		</p>
+		<p>
+			<button data-id="{{ venue.id }}" id="delete-venue" type="button" class="btn btn-danger">Delete this venue</button>
+		</p>
+		<p id="delete-error" class="hidden">
+			Something went wrong! Could not delete venue.
+		</p>
+		
+	</div>
+	<div class="col-sm-6">
+		{% if venue.image_link %}
+		<img src="{{ venue.image_link }}" alt="Venue Image" />
+		{% else %}
+		<span><i class="fas fa-image"></i> Venue Image Unavailable</span>
+		{% endif %}
+	</div>
+</div>
+<section>
+	<h2 class="monospace">{{ venue.upcoming_shows_count }} Upcoming {% if venue.upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<div class="row">
+		{%for show in venue.upcoming_shows %}
+		<div class="col-sm-4">
+			<div class="tile tile-show">
+				<img src="{{ show.artist_image_link }}" alt="Show Artist Image" />
+				<h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_name }}</a></h5>
+				<h6>{{ show.start_time|datetime('full') }}</h6>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+<section>
+	<h2 class="monospace">{{ venue.past_shows_count }} Past {% if venue.past_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<div class="row">
+		{%for show in venue.past_shows %}
+		<div class="col-sm-4">
+			<div class="tile tile-show">
+				<img src="{{ show.artist_image_link }}" alt="Show Artist Image" />
+				<h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_name }}</a></h5>
+				<h6>{{ show.start_time|datetime('full') }}</h6>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="my-modal-header">
+        <h4 class="modal-title">Confirm deletion?</h4>
+      </div>
+      <div class="my-modal-footer">
+		<div class="fade_rule"></div>  
+        <button type="button" id="modal-delete" class="btn btn-danger" data-dismiss="modal">Confirm</button>
+        <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+
+	let deleteBtn = document.getElementById('delete-venue');
+	let modal_delete = document.getElementById('modal-delete');
+	deleteBtn.onclick = function(e) {
+		const venueId = e.target.dataset["id"]
+		document.getElementById("delete-error").className = 'hidden'
+		$('#confirm').modal({
+			backdrop: 'static',
+			keyboard: false
+		})
+		modal_delete.onclick = function() {
+			console.log(venueId);
+			const request = new XMLHttpRequest();
+			request.open('DELETE', '/venues/' + venueId);
+			request.send();
+			request.onload = (function() {
+				if (request.status == 200) {
+					$('body').html(request.response)
+				} else {
+					document.getElementById("delete-error").className = '';
+				}
+			})
+		}
+	}
+
+
+</script>
+
+{% endblock %}
+

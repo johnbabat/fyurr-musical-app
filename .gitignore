@@ -1,0 +1,4 @@
+__pycache__/
+venv/
+migrations/
+hidden_var.py

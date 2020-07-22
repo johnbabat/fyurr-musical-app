@@ -1,0 +1,64 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Fyyur | Artists Search{% endblock %}
+{% block content %}
+<div class="toggle-search-type container">
+	<div class="btn-group btn-group-toggle" data-toggle="buttons">
+		<label id="switch-name" class="btn btn-secondary active">
+		  <input type="radio" name="options" id="option1" autocomplete="off" checked> Results by Name
+		</label>
+		<label id="switch-state" class="btn btn-secondary">
+		  <input type="radio" name="options" id="option2" autocomplete="off"> Results by State & City
+		</label>
+	  </div>
+</div>
+<div id="left-side-data" class="visible-doc">
+	<h3>Number of search results for "{{ search_term }}": {{ results[0].count }}</h3>
+	<ul class="items">
+		{% for artist in results[0].data %}
+		<li>
+			<a href="/artists/{{ artist.id }}">
+				<i class="fas fa-users"></i>
+				<div class="item">
+					<h5>{{ artist.name }}</h5>
+				</div>
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+<div id="right-side-data" class="hide-doc">
+	<h3>Number of search results for "{{ search_term }}": {{ results[1].count }}</h3>
+	<ul class="items">
+		{% for artist in results[1].data %}
+		<li>
+			<a href="/artists/{{ artist.id }}">
+				<i class="fas fa-users"></i>
+				<div class="item">
+					<h5>{{ artist.name }} - {{ artist.city }}, {{artist.state}}</h5>
+				</div>
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+
+<script>
+	let leftSideBtn = document.getElementById('switch-name');
+	let rightSideBtn = document.getElementById('switch-state');
+	leftDoc = document.getElementById('left-side-data')
+	rightDoc = document.getElementById('right-side-data')
+	leftSideBtn.onclick = function() {
+		if (leftDoc.className == 'hide-doc') {
+			leftDoc.className = 'visible-doc';
+			rightDoc.className = 'hide-doc'
+		}
+	}
+	rightSideBtn.onclick = function() {
+		if (rightDoc.className == 'hide-doc') {
+			rightDoc.className = 'visible-doc';
+			leftDoc.className = 'hide-doc'
+		}
+	}		
+</script>
+
+{% endblock %}
