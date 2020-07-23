@@ -43,7 +43,11 @@
 		</p>
 	</div>
 	<div class="col-sm-6">
-		<img src="{{ artist.image_link }}" alt="Venue Image" />
+		{% if artist.image_link %}
+		<img src="{{ artist.image_link }}" alt="Artist Image" />
+		{% else %}
+		<span><i class="fas fa-image"></i> Artist Image Unavailable</span>
+		{% endif %}
 	</div>
 </div>
 <section>
