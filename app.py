@@ -599,27 +599,31 @@ def shows():
   #       num_shows should be aggregated based on number of upcoming shows per venue.
 
   shows = Show.query.order_by('id').all()
-  data = []
-  available_shows = {"old_shows":0, "new_shows":0}
+  data = {"old_shows":[], "upcoming_shows":[]}
+
   for show in shows:
     artist = Artist.query.get(show.artist_id)
     venue = Venue.query.get(show.venue_id)
-    old_show = datetime.now() > dateutil.parser.parse(show.start_time)
-    data.append({
-      "venue_id": show.venue_id,
-      "venue_name": venue.name,
-      "artist_id": show.artist_id,
-      "artist_name": artist.name,
-      "artist_image_link": artist.image_link,
-      "start_time": show.start_time,
-      "old_show": old_show
-    })
-    if old_show:
-      available_shows["old_shows"] +=1
+    if datetime.now() > dateutil.parser.parse(show.start_time):
+      data["old_shows"].append({
+        "venue_id": show.venue_id,
+        "venue_name": venue.name,
+        "artist_id": show.artist_id,
+        "artist_name": artist.name,
+        "artist_image_link": artist.image_link,
+        "start_time": show.start_time,
+      })
     else:
-      available_shows["new_shows"] +=1
+      data["upcoming_shows"].append({
+        "venue_id": show.venue_id,
+        "venue_name": venue.name,
+        "artist_id": show.artist_id,
+        "artist_name": artist.name,
+        "artist_image_link": artist.image_link,
+        "start_time": show.start_time,
+      })
 
-  return render_template('pages/shows.html', shows=[data, available_shows])
+  return render_template('pages/shows.html', shows=data)
 
 @app.route('/shows/create', methods=['GET'])
 def create_shows():
