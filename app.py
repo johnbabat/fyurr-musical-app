@@ -178,7 +178,6 @@ def search_venues():
   response2 = {"count": 0, "data": []}
   venues = Venue.query.all()
   for venue in venues:
-    print(keyWord)
     if keyWord in f'{venue.city.lower()}, {venue.state.lower()}':
       data = {
         "id": venue.id,
@@ -601,9 +600,11 @@ def shows():
 
   shows = Show.query.order_by('id').all()
   data = []
+  available_shows = {"old_shows":0, "new_shows":0}
   for show in shows:
     artist = Artist.query.get(show.artist_id)
     venue = Venue.query.get(show.venue_id)
+    old_show = datetime.now() > dateutil.parser.parse(show.start_time)
     data.append({
       "venue_id": show.venue_id,
       "venue_name": venue.name,
@@ -611,10 +612,14 @@ def shows():
       "artist_name": artist.name,
       "artist_image_link": artist.image_link,
       "start_time": show.start_time,
-      "old_show": datetime.now() > dateutil.parser.parse(show.start_time)
+      "old_show": old_show
     })
+    if old_show:
+      available_shows["old_shows"] +=1
+    else:
+      available_shows["new_shows"] +=1
 
-  return render_template('pages/shows.html', shows=data)
+  return render_template('pages/shows.html', shows=[data, available_shows])
 
 @app.route('/shows/create', methods=['GET'])
 def create_shows():

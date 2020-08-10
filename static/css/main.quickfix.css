@@ -69,3 +69,11 @@ a > button.edit-property:hover {
 #temp-header > i {
   font-size: large;
 }
+
+.check-shows {
+  display: inline-block;
+  padding: 20px 30px;
+  margin-bottom: 30px;
+  border-radius: 15px;
+  background: #ffffc6;
+}
