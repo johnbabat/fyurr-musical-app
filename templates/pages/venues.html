@@ -1,6 +1,11 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Fyyur | Venues{% endblock %}
 {% block content %}
+{% if not areas %}
+	<div class="check-available">
+		<p>No venues listed</p>
+	</div>
+{% endif %}
 {% for area in areas %}
 <h3>{{ area.city }}, {{ area.state }}</h3>
 	<ul class="items">

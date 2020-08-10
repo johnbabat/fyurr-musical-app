@@ -4,8 +4,8 @@
 <div class="row shows">
     <h3>Upcoming Shows</h3>
     {% if shows[1].new_shows == 0 %}
-        <div class="check-shows">
-            <p>No Upcomming Shows</p>
+        <div class="check-available">
+            <p>No upcomming shows</p>
         </div>
     {% endif %}
     {%for show in shows[0] %}
@@ -25,8 +25,8 @@
 <div class="row shows">
     <h3>Past Shows</h3>
     {% if shows[1].old_shows == 0 %}
-    <div class="check-shows">
-        <p>No Past Shows</p>
+    <div class="check-available">
+        <p>No past shows</p>
     </div>
     {% endif %}
     {%for show in shows[0] %}
