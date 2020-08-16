@@ -51,7 +51,7 @@ class Venue(db.Model):
   state = db.Column(db.String(120))
   address = db.Column(db.String(120))
   phone = db.Column(db.String(120))
-  image_link = db.Column(db.String(500))
+  image_link = db.Column(db.String())
   facebook_link = db.Column(db.String(120))
   website = db.Column(db.String(120))
   seeking_talent = db.Column(db.Boolean, default=False)
@@ -70,11 +70,12 @@ class Artist(db.Model):
   state = db.Column(db.String(120))
   phone = db.Column(db.String(120))
   genres = db.Column(db.String(120))
-  image_link = db.Column(db.String(500))
+  image_link = db.Column(db.String())
   facebook_link = db.Column(db.String(120))
   website = db.Column(db.String(120))
   seeking_venue = db.Column(db.Boolean, default=False)
   seeking_description = db.Column(db.String(120))
+  available_time = db.Column(db.String(120))
   genres = db.relationship('Genre', secondary=artist_genres, backref=db.backref('artists', lazy=True))
   shows = db.relationship('Show', backref = 'artists')
 
@@ -391,6 +392,7 @@ def show_artist(artist_id):
   data["website"] = artist.website
   data["facebook_link"] = artist.facebook_link
   data["seeking_venue"] = artist.seeking_venue
+  data["available_time"] = artist.available_time
   if artist.seeking_venue:
     data["seeking_description"] = artist.seeking_description
   data["image_link"] = artist.image_link
@@ -462,6 +464,7 @@ def edit_artist_submission(artist_id):
     artist.facebook_link = request.form.get('facebook_link')
     artist.seeking_venue = True if request.form.get('seeking_venue') == 'YES' else False
     artist.seeking_description = request.form.get('seeking_description')
+    artist.available_time = request.form.get('available_time')
     genres = request.form.getlist('genres')
     artist.genres = []
     for genre in genres:
@@ -472,7 +475,6 @@ def edit_artist_submission(artist_id):
       else:
         g = genre_present[0]
       g.artists.append(artist)
-
     db.session.commit()
     flash('Artist ' + request.form['name'] + ' was successfully updated!')
   except:
@@ -562,7 +564,8 @@ def create_artist_submission():
     facebook_link = request.form.get('facebook_link')
     seeking_venue = True if request.form.get('seeking_venue') == 'YES' else False
     seeking_description = request.form.get('seeking_description')
-    new_artist = Artist(name=name, city=city, state=state, phone=phone, image_link=image_link, website=website, facebook_link=facebook_link, seeking_venue=seeking_venue, seeking_description=seeking_description)
+    available_time = request.form.get('available_time')
+    new_artist = Artist(name=name, city=city, state=state, phone=phone, image_link=image_link, website=website, facebook_link=facebook_link, seeking_venue=seeking_venue, seeking_description=seeking_description, available_time=available_time)
     genres = set(request.form.getlist('genres'))
     for genre in genres:
       genre_present = Genre.query.filter_by(name=genre).all()
@@ -586,7 +589,7 @@ def create_artist_submission():
   finally:
     db.session.close()
 
-  return render_template('pages/home.html')
+  return redirect(url_for('index'))
 
 
 #  Shows
@@ -646,13 +649,31 @@ def create_show_submission():
     venue_id = request.form.get('venue_id')
     start_time = request.form.get('start_time')
 
-    artist_exists = Artist.query.get(artist_id)
-    if not artist_exists:
+    artist = Artist.query.get(artist_id)
+    if not artist:
       flash('No artist with ID ' + artist_id)
       return render_template('forms/new_show.html', form=form)
 
-    venue_exists = Venue.query.get(venue_id)
-    if not venue_exists:
+    if artist.available_time:
+      period = artist.available_time.split('-')
+      open_time = time.strptime(period[0].strip(' '), '%H:%M')
+      close_time = time.strptime(period[1].strip(' '), '%H:%M')
+
+      hour_min = start_time.split(' ')[1].split(':')[:2]
+      hour_min = ":".join(hour_min)
+      cur_time = time.strptime(hour_min, '%H:%M')
+
+      if open_time < close_time:
+        if not (cur_time >= open_time and cur_time <= close_time):
+          flash(artist.name + ' not available at ' + hour_min + '. Kindly visit their page for available booking periods.')
+          return render_template('forms/new_show.html', form=form)
+      else:
+        if not (cur_time >= open_time or cur_time <= close_time):
+          flash(artist.name + ' not available at ' + hour_min + '. Kindly visit their page for available booking periods.')
+          return render_template('forms/new_show.html', form=form)
+
+    venue = Venue.query.get(venue_id)
+    if not venue:
       flash('No venue with ID ' + venue_id)
       return render_template('forms/new_show.html', form=form)
 

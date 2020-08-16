@@ -117,10 +117,10 @@
 			keyboard: false
 		})
 		modal_delete.onclick = function() {
-			console.log(venueId);
 			const request = new XMLHttpRequest();
 			request.open('DELETE', '/venues/' + venueId);
 			request.send();
+			console.log(request);
 			request.onload = (function() {
 				if (request.status == 200) {
 					$('body').html(request.response)

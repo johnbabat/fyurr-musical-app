@@ -1,6 +1,7 @@
+import time
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, SelectField, SelectMultipleField, DateTimeField
+from wtforms import BooleanField, StringField, SelectField, SelectMultipleField, DateTimeField, TimeField
 from wtforms.validators import DataRequired, AnyOf, URL, Length, ValidationError
 
 class ShowForm(FlaskForm):
@@ -219,5 +220,25 @@ class ArtistForm(FlaskForm):
     seeking_description = StringField(
         'seeking_description'
     )
+    available_time = StringField(
+        'available_time'
+    )
+    def validate_available_time(self, available_time):
+        if available_time.data:
+            periods = available_time.data.split('-')
+            if len(periods) < 2 or len(periods) > 2:
+                raise ValidationError("Please enter valid time range separated by '-'")              
+            start = self.toTime(periods[0].strip(" "))
+            end = self.toTime(periods[1].strip(" "))
+            if not start and end:
+                raise ValidationError('Please enter valid time format')
+            if start == end:
+                raise ValidationError('Range cannot start and end at the same time')
+            
+    def toTime(self, input):
+        try:
+            return time.strptime(input, '%H:%M')
+        except ValueError:
+            return False
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
