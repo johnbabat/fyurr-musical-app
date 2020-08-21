@@ -464,7 +464,9 @@ def edit_artist_submission(artist_id):
     artist.facebook_link = request.form.get('facebook_link')
     artist.seeking_venue = True if request.form.get('seeking_venue') == 'YES' else False
     artist.seeking_description = request.form.get('seeking_description')
-    artist.available_time = request.form.get('available_time')
+
+    available_time = request.form.get('available_time').replace(' ', '')
+    artist.available_time = ' - '.join(available_time.split('-'))
     genres = request.form.getlist('genres')
     artist.genres = []
     for genre in genres:
@@ -564,7 +566,8 @@ def create_artist_submission():
     facebook_link = request.form.get('facebook_link')
     seeking_venue = True if request.form.get('seeking_venue') == 'YES' else False
     seeking_description = request.form.get('seeking_description')
-    available_time = request.form.get('available_time')
+    available_time = request.form.get('available_time').replace(' ', '')
+    available_time = ' - '.join(available_time.split('-'))
     new_artist = Artist(name=name, city=city, state=state, phone=phone, image_link=image_link, website=website, facebook_link=facebook_link, seeking_venue=seeking_venue, seeking_description=seeking_description, available_time=available_time)
     genres = set(request.form.getlist('genres'))
     for genre in genres:
@@ -614,7 +617,7 @@ def shows():
         "artist_id": show.artist_id,
         "artist_name": artist.name,
         "artist_image_link": artist.image_link,
-        "start_time": show.start_time,
+        "start_time": show.start_time
       })
     else:
       data["upcoming_shows"].append({
@@ -623,7 +626,7 @@ def shows():
         "artist_id": show.artist_id,
         "artist_name": artist.name,
         "artist_image_link": artist.image_link,
-        "start_time": show.start_time,
+        "start_time": show.start_time
       })
 
   return render_template('pages/shows.html', shows=data)
