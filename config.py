@@ -1,5 +1,5 @@
 import os
-from hidden_var import sql_pass
+# from hidden_var import sql_pass
 
 SECRET_KEY = os.urandom(32)
 # Grabs the folder where the script runs.
@@ -12,4 +12,4 @@ DEBUG = True
 
 
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:' + sql_pass + '@localhost:5432/fyurrapp'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:5432/fyurrapp'
